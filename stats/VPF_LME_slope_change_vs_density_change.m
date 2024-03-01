@@ -40,14 +40,14 @@ tbl(tbl.density_change==0,:) = [];
 % formula = 'slope_change ~ 1 + density_change + (density_change|subject)';% + (density_change|subfield)';
 formula = 'slope_change ~ density_change + (1|subject) + (1|subfield)';
 
-lme = fitlme(tbl,formula,'FitMethod','REML')
+lme = fitlme(tbl,formula,'FitMethod','REML');
 
 
-
+keyboard
 % lme = fitlm(tbl)
 % keyboard
 % ypred = predict(lme);
-% % anova(lme)
+anova(lme,'DFMethod','satterthwaite')
 R_lme = lme.Rsquared
 % coeff = double(lme.Coefficients(:,2));
 % p = double(lme.Coefficients(:,6));

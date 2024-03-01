@@ -66,16 +66,22 @@ lgd = legend(legendax,titles,'Location','NorthEast');
 ylabel('\beta_{memory} - \beta_{math} [z]')
 set(gca,'FontSize',plotspecs.FontSize)
 %%
-Xm2 = cat(2,mean(X(:,1:9,:),2,'omitnan'),mean(X(:,10:15,:),2,'omitnan'),mean(X(:,16:23,:),2,'omitnan'),mean(X(:,24:end,:),2,'omitnan'));
-Xm2(end,end,:) = mean(Xm2(end,[end-1 end],:),2,'omitnan');
-Xm2(end,3,:) = nan;
 
-Xs2 = std(Xm2,[],3,'omitnan')./sqrt(9);
-Xm2 = mean(Xm2,3,'omitnan');
+Xm_agg = cat(2,mean(X(:,1:9,:),2,'omitnan'),mean(X(:,10:15,:),2,'omitnan'),mean(X(:,16:23,:),2,'omitnan'),mean(X(:,24:end,:),2,'omitnan'));
+
+memory_vs_math_aggregated = reshape(permute(Xm_agg,[1 3 2]),[45 4]);
+
+Xm_agg(end,end,:) = mean(Xm_agg(end,[end-1 end],:),2,'omitnan');
+Xm_agg(end,3,:) = nan;
+
+Xs_agg = std(Xm_agg,[],3,'omitnan')./sqrt(9);
+Xm_agg = mean(Xm_agg,3,'omitnan');
+
+memory_vs_math_all_layers = reshape(permute(X,[1 3 2]),[45 30]);
 
 
 figure,
-b = bar(1:5,Xm2,'LineWidth',2);
+b = bar(1:5,Xm_agg,'LineWidth',2);
 b(1).FaceColor = 'flat';
 b(2).FaceColor = 'flat';
 b(3).FaceColor = 'flat';
@@ -95,7 +101,7 @@ for ii = 1:4
     else
         x = (1:5) + 0.18 * (ii-2.5);
     end
-    er = errorbar(x,Xm2(:,ii),Xs2(:,ii),'LineWidth', 2);
+    er = errorbar(x,Xm_agg(:,ii),Xs_agg(:,ii),'LineWidth', 2);
     er(1).Color = [0 0 0];
     er(1).LineStyle = 'none';
 
