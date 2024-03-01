@@ -3,12 +3,13 @@ clear;clc;
 
 sub_id = '7568';
 sess_id ='01'; 
-mainpath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/';
-%statspath = [mainpath sub_id '/ses-' sess_id '/func/rwls_stats/'];
-statspath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/rwls_stats/';
+% mainpath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/';
+mainpath = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/';
+statspath = [mainpath sub_id '/ses-' sess_id '/func/rwls_stats/'];
+% statspath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/rwls_stats/';
 structpath =  '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/7511/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/sub-7511_UNI_MPRAGEised_biascorrected.nii';
 %structpath =  '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7513/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/sub-7513_UNI_MPRAGEised_biascorrected_denoised.nii';
-mask_path = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/mag_POCS_r1_fixedMask.nii';
+mask_path = [mainpath sub_id '/ses-' sess_id '/func/run1/func/mag_POCS_r1_fixedMask.nii'];
 unfoldpath = ['/media/pfaffenrot/Elements/postdoc/proje' ...
     'cts/hippocampus_breathhold/FLASH/derivatives/hippunfold/7511/anat/']; 
 %unfoldpath = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/hippunfold/7513/anat/'; 
@@ -66,7 +67,8 @@ for ii = 1:size(mask,3)
     mask(:,:,ii) = imdilate(imfill(imclose(mask(:,:,ii),strel('disk',12)),'holes'),strel('disk',12)); 
 end
 %%
-% load the data into memory. To save space, mask and vectorize them
+% load the data into memory. To save space, mask and vectorize themmask = load_nifti([p '/r' m ext]).vol;
+
 runs = 3;
 N    = 486;
 
@@ -82,20 +84,23 @@ roi_WM = roi_WM(mask);
 %%
 for run = 1:runs
 %     mypath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7512/ses-02/func/run' num2str(run) '/func/'];
-% mypath = [mainpath sub_id '/ses-' sess_id '/func/run' num2str(run) '/func/'];
-mypath = [mainpath 'mag_POCS_r' num2str(run) '_split/'];
+mypath = [mainpath sub_id '/ses-' sess_id '/func/run' num2str(run) '/func/'];
+% mypath = [mainpath 'mag_POCS_r' num2str(run) '_split/'];
 
     for vol = 1:N
 
         if vol == 1
-            hdr = load_nifti([mypath 'mag_POCS_r' num2str(run) '_1' sprintf('%03d',vol-1) '_Warped-to-Anat.nii']);
+            hdr = load_nifti([mypath 'mag_POCS_r' num2str(run) '_1' sprintf('%03d',vol-1) '_Warped-to-Anat.nii.gz']);
             tmp = hdr.vol(mask);
             img = zeros(length(tmp),N);
             img(:,vol) = tmp;
             clear tmp
         else
-            tmp = load_nifti([mypath 'mag_POCS_r' num2str(run) '_1' sprintf('%03d',vol-1) '_Warped-to-Anat.nii']).vol;
+            tmp = load_nifti([mypath 'mag_POCS_r' num2str(run) '_1' sprintf('%03d',vol-1) '_Warped-to-Anat.nii.gz']).vol;
             img(:,vol) = tmp(mask);
+            if vol == 10
+                keyboard
+            end
         end
     end
     

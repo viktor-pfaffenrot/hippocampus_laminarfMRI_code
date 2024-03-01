@@ -52,7 +52,11 @@ for hemi = 1:2
     for run = 1:runs
         if ~MASK_VEINS
             for ii = 1:subfields-1
-                inp = layers{hemi,ii,run}(:,[10 30],:);
+                if ii == subfields-1
+                    inp = repmat(layers{hemi,ii,run}(:,1,:),[1 2 1]);
+                else
+                    inp = layers{hemi,ii,run}(:,[10 30],:);
+                end
 
                 layers_new(labels==ii,:,:,run,hemi) = inp;
             end
@@ -60,8 +64,11 @@ for hemi = 1:2
             for ii = 1:subfields-1
                 sz = size(layers{hemi,ii,run});
                 sfield = zeros([sz(1) 2 sz(end)]);
-                inp = layers{hemi,ii,run}(idx{hemi,ii},[10 30],:);
-
+                if ii == subfields-1
+                    inp = repmat(layers{hemi,ii,run}(idx{hemi,ii},1,:),[1 2 1]);
+                else
+                    inp = layers{hemi,ii,run}(idx{hemi,ii},[10 30],:);
+                end
                 sfield(idx{hemi,ii},:,:) = inp;
                 layers_new(labels==ii,:,:,run,hemi) = sfield;
             end

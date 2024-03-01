@@ -45,16 +45,16 @@ for ss = 1:subfields-1
             end
         end
     else
-        %for CA4, average over layers and label as 'outer'. DG marks 'inner'.
+        % CA4 marks 'outer'. DG marks 'inner'
         % Interpolate final T and beta between inner and outer for visualization purposes
         for run = 1:runs
             %CA4
             if MASK_VEINS
-                tmp = mean(squeeze(mean(layers{1,end-1,run}(nonvessel_idx{1,end-1},20:21,:),1))...
-                    + squeeze(mean(layers{2,end-1,run}(nonvessel_idx{2,end-1},20:21,:),1)),1);
+                tmp = (squeeze(mean(layers{1,end-1,run}(nonvessel_idx{1,end-1},:,:),1))...
+                    + squeeze(mean(layers{2,end-1,run}(nonvessel_idx{2,end-1},:,:),1))).';
             else
-                tmp = mean(squeeze(mean(layers{1,end-1,run}(:,20:21,:),1))...
-                    + squeeze(mean(layers{2,end-1,run}(:,20:21,:),1)),1);
+                tmp = (squeeze(mean(layers{1,end-1,run},1))...
+                    + squeeze(mean(layers{2,end-1,run},1))).';
             end
 
             %DG
@@ -68,6 +68,9 @@ for ss = 1:subfields-1
             Y(:,:,run) = cat(1,tmp2,tmp);
         end
     end
+
+    %the code above adds the signals of both hemispheres. Divide by 2 to average
+    Y = Y./2;
 
     if ZTRANS
         %basline z-transform input. I take the math condition as baseline

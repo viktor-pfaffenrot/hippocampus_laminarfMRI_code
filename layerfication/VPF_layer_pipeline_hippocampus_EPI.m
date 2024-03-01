@@ -3,8 +3,8 @@
 clear;clc;close all
 
 % some paramters
-subid = '7512';
-subid_BH = '7495';
+subid = '7560';
+subid_BH = '7554';
 sessionid = '1';
 
 vols = 486;
@@ -108,7 +108,7 @@ save([layerpathbase '/' outname],'layers','idx','-v7.3')
 
 %%
 colorcode = VPF_create_hippocampus_colorcode();
-for ZTRANS = [true]
+for ZTRANS = [true,false]
 
     if ZTRANS
         layerpath = [layerpathbase '/z_transformed'];
@@ -116,7 +116,7 @@ for ZTRANS = [true]
         layerpath = [layerpathbase '/native'];
     end
 
-    for con_idx = 4 %1=pre_vs_math,2=post_vs_math,3=pre_vs_post,4_memory_vs_math
+    for con_idx = 1:4 %1=pre_vs_math,2=post_vs_math,3=pre_vs_post,4_memory_vs_math
         for uu = 1:2 %1 == no vessels masked, 2 == vessels masked
 
             if uu == 1

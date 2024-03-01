@@ -79,7 +79,12 @@ for hemi = 1:2
     for run = 1:runs
         if ~MASK_VEINS
             for ii = 1:subfields-1
-                inp = layers{hemi,ii,run}(:,[10 20 30],:);
+                if ii == subfields-1
+                    inp = repmat(layers{hemi,ii,run}(:,1,:),[1 3 1]);
+                else
+
+                    inp = layers{hemi,ii,run}(:,[10 20 30],:);
+                end
                 if SMOOTH
                     inp = smoothdata(inp,1,'gaussian','SmoothingFactor',FWHM);
                 end
@@ -89,7 +94,11 @@ for hemi = 1:2
             for ii = 1:subfields-1
                 sz = size(layers{hemi,ii,run});
                 sfield = zeros([sz(1) N_layers sz(end)]);
-                inp = layers{hemi,ii,run}(idx{hemi,ii},[10 20 30],:);
+                if ii == subfields-1
+                    inp = repmat(layers{hemi,ii,run}(idx{hemi,ii},1,:),[1 3 1]);
+                else
+                    inp = layers{hemi,ii,run}(idx{hemi,ii},[10 20 30],:);
+                end
                 if SMOOTH
                     inp = smoothdata(inp,1,'gaussian','SmoothingFactor',FWHM);
                 end
