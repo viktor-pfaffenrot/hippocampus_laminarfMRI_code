@@ -10,9 +10,9 @@ registerDoParallel(cores=N_cores)
 pre_vs_post <- FALSE
 # read matrix and create data frame  ------------------------------------------
 if (pre_vs_post==TRUE) {
-  s <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/pre_vs_post_aggregated_masked.mat")
+  s <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/pre_vs_post_aggregated_no_masked.mat")
 } else {
-  s <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/memory_vs_math_aggregated_masked.mat")
+  s <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/memory_vs_math_aggregated_no_masked.mat")
 }
 
 subfields_levels <- c('Subiculum','CA1','CA2','CA3','CA4/DG')
@@ -144,3 +144,4 @@ for (subfield in subfields_levels){
   }
 }
 
+results_memory_vs_math_no_masked <-results_pairs

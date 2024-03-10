@@ -7,7 +7,6 @@ pacman::p_load(pacman,R.matlab,car,reshape,dplyr,GGally,ggplot2,ggthemes,ggvis,
 #or memory_vs_math should be loaded
 args <- commandArgs(trailingOnly = TRUE)
 pre_vs_post <- tolower(args[1]) == "true"
-#pre_vs_post <- TRUE
 
 # function to do the LME model comparison, i.e. to test whether there is a main
 # effect of layer. If yes, this implies that the laminar profiles 'go in the same

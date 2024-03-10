@@ -1,4 +1,4 @@
-clear;clc;close all;
+clear;clc;%close all;
 
 data = dir('/media/pfaffenrot/Elements/postdoc/projects/data/7*');
 
@@ -89,7 +89,7 @@ if pre_vs_post_flag==true
 else
     load('/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/res_LMM_check_main_effect_memory_vs_math.mat');
 end
-res_LMM_check_main_effect = struct('Subiculum',Subiculum,'CA1',CA1,'CA2',CA2,...
+results_LMM_check_main_effect = struct('Subiculum',Subiculum,'CA1',CA1,'CA2',CA2,...
     'CA3',CA3,'CA4DG',CA4DG);
 clear Subiculum CA1 CA2 CA3 CA4DG
 %%

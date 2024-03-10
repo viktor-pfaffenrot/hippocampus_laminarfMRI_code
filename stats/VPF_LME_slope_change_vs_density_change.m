@@ -43,7 +43,7 @@ formula = 'slope_change ~ density_change + (1|subject) + (1|subfield)';
 lme = fitlme(tbl,formula,'FitMethod','REML');
 
 
-keyboard
+% keyboard
 % lme = fitlm(tbl)
 % keyboard
 % ypred = predict(lme);

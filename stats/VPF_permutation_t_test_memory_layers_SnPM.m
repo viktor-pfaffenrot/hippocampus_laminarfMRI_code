@@ -12,23 +12,23 @@ for Scan = 1:nScan
     if strcmp(data(Scan).name,'7495') ||  strcmp(data(Scan).name,'7566')
         for session = 1:2
             load([data(Scan).folder '/' data(Scan).name '/memory/ses-0' num2str(session)...
-                '/z_transformed/results_pre_vs_post_z_vessel_masked.mat']);
+                '/z_transformed/results_memory_vs_math_z.mat']);
             if session == 1
-                tmp = zeros(size(results_pre_vs_post.con_array));
+                tmp = zeros(size(results_memory_vs_math.con_array));
                 if Scan == 1
-                    X = zeros([size(results_pre_vs_post.con_array),nScan]);
+                    X = zeros([size(results_memory_vs_math.con_array),nScan]);
                 end
             end
-            tmp = tmp+results_pre_vs_post.con_array;
+            tmp = tmp+results_memory_vs_math.con_array;
             X(:,:,Scan) = tmp./2;
         end
     else
         load([data(Scan).folder '/' data(Scan).name...
-            '/memory/z_transformed/results_pre_vs_post_z_vessel_masked.mat']);
+            '/memory/z_transformed/results_memory_vs_math_z.mat']);
         if Scan == 1
-            X = zeros([size(results_pre_vs_post.con_array),nScan]);
+            X = zeros([size(results_memory_vs_math.con_array),nScan]);
         end
-        X(:,:,Scan) = results_pre_vs_post.con_array;
+        X(:,:,Scan) = results_memory_vs_math.con_array;
     end
 end
 
@@ -44,8 +44,8 @@ titles = [cellstr('Subiculum'), cellstr('CA1'), cellstr('CA2'),...
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
     'xtick',[],'xlim',[1 30],'LineWidth',2);
 
-plotspecs.ytick = -0.5:0.1:13;
-plotspecs.ylim = [-0.5 1.3];
+plotspecs.ytick = -0.1:0.1:4;
+plotspecs.ylim = [-0.1 1.4];
 
 figure,
 pos = 30;
@@ -65,11 +65,12 @@ l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black')
 lgd = legend(legendax,titles,'Location','NorthEast');
 ylabel('\beta_{memory} - \beta_{math} [z]')
 set(gca,'FontSize',plotspecs.FontSize)
+title('memory vs math')
 %%
 
 Xm_agg = cat(2,mean(X(:,1:9,:),2,'omitnan'),mean(X(:,10:15,:),2,'omitnan'),mean(X(:,16:23,:),2,'omitnan'),mean(X(:,24:end,:),2,'omitnan'));
 
-memory_vs_math_aggregated = reshape(permute(Xm_agg,[1 3 2]),[45 4]);
+memory_vs_math_aggregated_masked = reshape(permute(Xm_agg,[1 3 2]),[45 4]);
 
 Xm_agg(end,end,:) = mean(Xm_agg(end,[end-1 end],:),2,'omitnan');
 Xm_agg(end,3,:) = nan;
@@ -109,8 +110,9 @@ end
 
 g = gca;
 set(g,'xticklabel',{'Sub','CA1','CA2','CA3','DG/CA4'})
-set(g,'FontName','Arial','FontSize',24)
+set(g,'FontName','Arial','FontSize',24,'YLim',[-0.4 1])
 ylabel('\beta_{pre} - \beta_{post} [z]')
+title('veins not masked')
 
 h2 = bar(nan(4,4));
 h2(1).FaceColor = bla{2,1};
@@ -316,7 +318,7 @@ T = T_out;
 results = struct('T',T,'Tcrit',Tcrit);
 results_json = jsonencode(results,PrettyPrint=true);
 
-results_pre_vs_post_pre_vs_post = results;
+results_memory_vs_math_memory_vs_math = results;
 outname = 'memory_vs_math';
 outpath = '/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory';
 
