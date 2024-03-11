@@ -120,12 +120,8 @@ end
 
 y = y(select,:);
 x = squeeze(d_vessel_densities(1,:,:)).';
-w = ones(size(x));
-% w(:,[1 2 3 4 ]) = 0;
-x = x.*w;
-y = y.*w;
-w = w(:);
-lme = VPF_LME_slope_change_vs_density_change(x,y);
+
+
 figure,
 for jj = 1:subfields
     sc(jj) = scatter(x(:,jj),y(:,jj), 'filled', 'MarkerEdgeColor', 'k');
@@ -136,13 +132,15 @@ for jj = 1:subfields
     plot(x(k,jj),y(k,jj),'Color',colorcode{jj,1},'LineWidth',1,'LineStyle','-')
 end
 
-coeff = double(lme.Coefficients([1,end],2));
-CI = [double(lme.Coefficients(:,end-1)),double(lme.Coefficients(:,end))];
+% lme = VPF_LME_slope_change_vs_density_change(x,y);
+system('Rscript /home/pfaffenrot/work/postdoc/projects/library/stats/VPF_LMM_dSlope_vs_dDensity.R ');
+load('/media/pfaffenrot/Elements/postdoc/projects/data/avg/breathhold/results_stat_density_change_vs_slope_change.mat')
+results_LMM = struct('KR',KR,'Estimates',Estimates,'SE',SE);
+clear KR Estimates SE
 
-x2 = linspace(min(x(:)),max(x(:)),40);
-y_pred = coeff(2)*x2+coeff(1);
-up = CI(2,2)*x2+CI(1,2);
-err = up-y_pred;
+x2 = linspace(min(x(:)),max(x(:)),numel(x));
+y_pred = results_LMM.Estimates(2)*x2+results_LMM.Estimates(1);
+err = results_LMM.SE(2)*x2+results_LMM.SE(1);
 
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
     'xtick',[-500:100:300],'xlim',[-500 300],'LineWidth',2);
