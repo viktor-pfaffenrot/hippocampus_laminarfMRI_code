@@ -1,4 +1,4 @@
-clear;%clc;%close all
+clear;clc;close all
 
 data = dir('/media/pfaffenrot/Elements/postdoc/projects/data/7*');
 data = data([1 2 4 5 6 7 8 9]);
@@ -27,12 +27,14 @@ select = [1 2 3 4 5 6 7 8];
 [colorcode,colorcode_points] = VPF_create_hippocampus_colorcode();
 p = zeros(5,1);
 for subfield = 1:5
-    p(subfield) = signrank(squeeze(vessel_densities(1,subfield,1,:)),squeeze(vessel_densities(1,subfield,2,:)),'alpha',0.05);
+    if subfield == 1
+        [p(subfield),~,tmp] = signrank(squeeze(vessel_densities(1,subfield,1,:)),squeeze(vessel_densities(1,subfield,2,:)),'alpha',0.05);
+        stats = repmat(tmp,[5 1]);
+    else
+        [p(subfield),~,stats(subfield)] = signrank(squeeze(vessel_densities(1,subfield,1,:)),squeeze(vessel_densities(1,subfield,2,:)),'alpha',0.05);
+    end
 end
-% keyboard
-% p = spm_P_FDR(p);
 p = multicmp(p,'up',0.05);
-% p = mafdr(p,'BHFDR',true);
 %%
 m = median(vessel_densities,4,'omitnan');
 s = std(vessel_densities,[],4,'omitnan');
@@ -73,7 +75,6 @@ g = gca;
 set(g,'xticklabel',{'Sub','CA1','CA2','CA3','DG/CA4'})
 set(g,'FontName','Arial','FontSize',24)
 ylabel('vessel density \rho [a.u.]')
-
 hold on
 for ii = 1:sz(3)
     if ii == 1
@@ -91,7 +92,6 @@ for ii = 1:sz(3)
         sc(jj).CData = newcdata;
     end
 end
-
 %%
 subfield_labels = {'Subiculum','CA1','CA2','CA3','DG/CA4'};
 vessel_densities_selected = vessel_densities(:,:,:,select);
@@ -103,7 +103,7 @@ for subject = 1:subjects
         results_breathhold_all = repmat(results_breathhold,[subject 1]);
         results_breathhold_all(1) = results_breathhold;
     else
-        results_breathhold_all(subject) =    results_breathhold;
+        results_breathhold_all(subject) = results_breathhold;
     end
 end
 
@@ -132,7 +132,6 @@ for jj = 1:subfields
     plot(x(k,jj),y(k,jj),'Color',colorcode{jj,1},'LineWidth',1,'LineStyle','-')
 end
 
-% lme = VPF_LME_slope_change_vs_density_change(x,y);
 system('Rscript /home/pfaffenrot/work/postdoc/projects/library/stats/VPF_LMM_dSlope_vs_dDensity.R ');
 load('/media/pfaffenrot/Elements/postdoc/projects/data/avg/breathhold/results_stat_density_change_vs_slope_change.mat')
 results_LMM = struct('KR',KR,'Estimates',Estimates,'SE',SE);
@@ -151,12 +150,9 @@ plotspecs.ylim = [-0.08 0.1];
 plotspecs.color = 'k';
 shadedErrorBar(x2,y_pred,err,plotspecs,1);
 
-% [R2, coeff2] = fit_2D_data_tls(x(:), y(:));
-% y_pred2 = coeff2(1)*x2+coeff2(2);
 
 
 plot(x2,y_pred,'LineWidth',2,'LineStyle','-','Color','black','Marker','none')
-% plot(x2,y_pred2,'LineWidth',2,'LineStyle','-','Color','red','Marker','none')
 ylim([-0.1 0.1])
 
 g = gca;
@@ -164,27 +160,6 @@ set(g,'FontName','Arial','FontSize',24)
 ylabel('signal change slope [a.u.]')
 xlabel('\rho_{inner}-\rho_{outer} [a. u.]')
 legend(sc(1:subfields),subfield_labels,'Location','NorthWest')
-%%
-% x = squeeze(d_vessel_densities(1,:,:));
-% x_m = mean(x.',1);
-% y_m = mean(y,1);
-% 
-% figure,
-% for jj = 1:5
-%     sc(jj)= scatter(x_m(jj),y_m(jj),80, 'filled', 'MarkerEdgeColor', 'k');
-%     sc(jj).CData = colorcode{jj,1};
-%     hold on
-% end
-% [~,beta] = fit_2D_data_tls(x_m,y_m);
-% y_pred = beta(1)*x_m + beta(2);
-% plot(x_m,y_pred,'k','LineWidth',2)
-% % dx = 0.1*x_m; dy = 0.1*y_m; % displacement so the text does not overlay the data points
-% % text(x_m+dx, y_m+dy, subfield_labels);
-% g = gca;
-% set(g,'FontName','Arial','FontSize',24)
-% ylabel('signal change slope [a.u.]')
-% xlabel('\rho_{inner}-\rho_{outer} [a. u.]')
-% legend(sc(1:subfields),subfield_labels,'Location','NorthWest')
 
 
 %%

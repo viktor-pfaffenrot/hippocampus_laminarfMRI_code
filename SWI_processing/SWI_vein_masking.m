@@ -12,13 +12,9 @@ end
 
 
 V  = VPF_Frangi_Vesselness_Filter(img,m,1);
-
 V(isnan(V)) = 0;
-
 V = imgaussfilt3(V,[2.5 2.5 1]);
 %%
-
-
 ma = max(V(:)); 
 mi = min(V(:));
 V = 100 * (V - mi) / (ma - mi);

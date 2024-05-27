@@ -8,19 +8,15 @@ pre_vs_post <- TRUE
 
 
 
-N_cores <- 5
-cl <- makeCluster(N_cores,type = "FORK")
-registerDoParallel(cores=N_cores)
-
 masked_vs_no_masked_test <- function(inpdata){
   res <- pairwise_wilcox_test(inpdata,z~condition,comparisons=list(c("masked","not masked")),
-                              paired=TRUE,exact=TRUE,p.adjust.method="none")
+                              paired=TRUE,exact=TRUE,p.adjust.method="none",alternative="less")
   
   eff_size <- wilcox_effsize(inpdata,z~condition,comparisons=list(c("masked","not masked")),
-                             paired=TRUE,exact=TRUE,p.adjust.method="none")
-  z_out <- qnorm(res$p/2)
+                             paired=TRUE,exact=TRUE,p.adjust.method="none",alternative="less")
+
   
-  outlist <- list(p_value=res$p,effect_size=as.numeric(eff_size$effsize),z=z_out)
+  outlist <- list(p_value=res$p,effect_size=as.numeric(eff_size$effsize),W=res$statistic)
   return(outlist)
 }
 # read matrix and create data frame  ------------------------------------------
@@ -69,10 +65,10 @@ df_long$subfield <- factor(df_long$subfield,levels=subfields_levels)
 df_long$subject <- factor(df_long$subject,levels=subjects[seq(1, length(subjects), by = N_subfields)])
 df_long$layer <- factor(df_long$layer,levels=depths,ordered = TRUE)
 df_long$condition <-factor(df_long$condition,level=conditions)
-#compare masked vs not masked only at layers where the hypothesis is that three i
+#compare masked vs not masked only at layers where the hypothesis is that there is
 #an effect based on the breathhold data------
 #subiculum,DG/CA4 = inner
-#CA1= SRLM,inner
+#CA1 = SRLM,inner
 #CA2,CA3 = outer
 results_pairs <- vector("list",length=N_subfields)
 names(results_pairs) <- subfields_levels

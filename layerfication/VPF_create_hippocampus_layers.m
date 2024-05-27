@@ -18,7 +18,7 @@ function varargout = VPF_create_hippocampus_layers(sampled_img,subject_id,hippun
 %subject_id   [int]     : subject ID used in hippunfold. The surfaces are
 %                         read in using that ID
 %hippunfold_path [str]  : full path to the hippunfold output, e.g.
-%                         ./hippunfold/sub-xxxx/surf
+%                         ./hippunfold/sub-xxxx/
 %T1_path      [str]     : full path and filename of the T1 weighted nifti
 
 %OPTIONAL:
@@ -250,21 +250,21 @@ end
 if DEBUG==true
     %plot the surfaces onto the T1
     img_T1 = spm_read_vols(hdr_T1);
-    for slice = 60
+    for slice = 69
         idx = find(layer_boundaries{1,1}(:,3,1)>slice & layer_boundaries{1,1}(:,3,1)<slice+1);
         idx2 = find(layer_boundaries{1,1}(:,3,3)>slice & layer_boundaries{1,1}(:,3,3)<slice+1);
         idx3 = find(layer_boundaries{1,1}(:,3,2)>slice & layer_boundaries{1,1}(:,3,2)<slice+1);
 
         idx4 = find(layer_boundaries{1,2}(:,3)>slice & layer_boundaries{1,2}(:,3)<slice+1);
-        figure;imagesc(squeeze(img_T1(:,:,slice)), [0 300]), colormap(gray(256)), title(['Slice ' num2str(slice)])
+        figure;imagesc(squeeze(img_T1(:,:,slice)), [0 150]), colormap(gray(256)), title(['Slice ' num2str(slice)])
         hold on;
 
-        plot(layer_boundaries{1,1}(idx,2,1),layer_boundaries{1,1}(idx,1,1),'r.');
-        plot(layer_boundaries{1,1}(idx2,2,3),layer_boundaries{1,1}(idx2,1,3),'b.');
-        plot(layer_boundaries{1,1}(idx3,2,2),layer_boundaries{1,1}(idx3,1,2),'g.');
+        plot(layer_boundaries{1,1}(idx,2,1),layer_boundaries{1,1}(idx,1,1),'color','r','Marker','.','MarkerSize',10,'LineStyle','none');
+        plot(layer_boundaries{1,1}(idx3,2,2),layer_boundaries{1,1}(idx3,1,2),'color','y','Marker','.','MarkerSize',10,'LineStyle','none');
+        plot(layer_boundaries{1,1}(idx2,2,3),layer_boundaries{1,1}(idx2,1,3),'color',[17,249,249]/255,'Marker','.','MarkerSize',10,'LineStyle','none');
         plot(layer_boundaries{1,2}(idx4,2),layer_boundaries{1,2}(idx4,1),'w.');
 
-        legend('inner','outer','middle','DG');
+        legend('inner','midthickness','outer','DG');
     end
 end
 end

@@ -18,16 +18,12 @@ for subject = 1:N_subjects
     OFF_all(:,:,:,subject) = OFF;
     ON_all(:,:,:,subject) = ON;
 end
-% sOFF = std(OFF_all,[],4,'omitnan');
-% sON = std(ON_all,[],4,'omitnan');
-% OFF = mean(OFF_all,4,'omitnan');
-% ON = mean(ON_all,4,'omitnan');
 
 d = ON_all-OFF_all;
 sd = std(d,[],4,'omitnan');
 md = mean(d,4,'omitnan');
 figtitles = [cellstr('Subiculum'), cellstr('CA1'),cellstr('CA2'),...
-    cellstr('CA3'),cellstr('CA4/DG')]; % cellstr('all')
+    cellstr('CA3'),cellstr('CA4/DG')];
 
 
 % Desired range for the mean
@@ -38,7 +34,6 @@ for subfield = 1:length(figtitles)
     mean_scale_factor = diff(target_mean_range) / (2 * std(tmp(:),'omitnan'));
 
     % Rescale the mean
-
     md(:,:,subfield) = (tmp - mean(tmp(:),'omitnan')) * mean_scale_factor;
 
     % Calculate the scale factor for standard deviation rescaling
@@ -50,7 +45,7 @@ for subfield = 1:length(figtitles)
     sd(:,:,subfield) = sd(:,:,subfield)./fac;
 end
 
-sd = sd./N_subjects;
+sd = sd./sqrt(N_subjects);
 
 
 mylegend = cell(1,numel(TE));
@@ -63,14 +58,9 @@ end
 
 
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-    'xtick',[],'xlim',[1 30],'LineWidth',2);
-plotspecs.ytick = -1.8:0.2:1.8;
-plotspecs.ylim = [-1.8 1.8];
-% plotspecs.ytick = 4:2:20;
-% plotspecs.ylim = [4 20];
-
-
-
+    'xtick',[],'xlim',[1 30],'LineWidth',4);
+plotspecs.ytick = -2.6:0.4:2.6;
+plotspecs.ylim = [-2.6 2.6];
 
 pos = 30;
 for subfield = 1:numel(figtitles)
@@ -106,64 +96,3 @@ for subfield = 1:numel(figtitles)
     ColorOrder = get(gca,'ColorOrder');
     set(gca,'FontSize',plotspecs.FontSize)
 end
-%%
-w = 1./TE;
-% w = 1;
-w = w./sum(w);
-dw = bsxfun(@times,d,reshape(w,[1 numel(TE) 1 1]));
-md = squeeze(mean(mean(dw,2),4));
-sd = squeeze(std(mean(dw,2),[],4));
-sd = sd./N_subjects;
-colorcode = VPF_create_hippocampus_colorcode();
-% plotspecs.ytick = 4:2:20;
-% plotspecs.ylim = [4 20];
-plotspecs.ytick = 0.8:0.2:6;
-plotspecs.ylim = [0.8 2.6];
-figure(),
-for subfield = 1:length(figtitles)
-    plotspecs.color = colorcode{subfield,1};
-    h(subfield) = shadedErrorBar(1:pos,md(:,subfield),...
-        sd(:,subfield),plotspecs,1);
-    if subfield == 1
-        legendax = h(subfield).mainLine;
-        hold on
-    else
-        legendax = cat(2,legendax,h(subfield).mainLine);
-    end
-end
-lgd = legend(legendax,figtitles,'Location','NorthEast');
-l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
-
-ylabel('\DeltaS_{echomean,weighted} [a.u.]')
-legend(legendax,figtitles,'Location','NorthEast');
-ColorOrder = get(gca,'ColorOrder');
-set(gca,'FontSize',plotspecs.FontSize)
-
-
-
-md = squeeze(mean(mean(d,2),4));
-sd = squeeze(std(mean(d,2),[],4));
-sd = sd./N_subjects;
-colorcode = VPF_create_hippocampus_colorcode();
-plotspecs.ytick = 4:2:20;
-plotspecs.ylim = [4 20];
-figure(),
-for subfield = 1:length(figtitles)
-    plotspecs.color = colorcode{subfield,1};
-    h(subfield) = shadedErrorBar(1:pos,md(:,subfield),...
-        sd(:,subfield),plotspecs,1);
-    if subfield == 1
-        legendax = h(subfield).mainLine;
-        hold on
-    else
-        legendax = cat(2,legendax,h(subfield).mainLine);
-    end
-end
-    lgd = legend(legendax,figtitles,'Location','NorthEast');
-    l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
-
-    ylabel('\DeltaS_{echomean} [a.u.]')
-    legend(legendax,figtitles,'Location','NorthEast');
-    ColorOrder = get(gca,'ColorOrder');
-    set(gca,'FontSize',plotspecs.FontSize)
-

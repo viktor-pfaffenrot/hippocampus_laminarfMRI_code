@@ -1,6 +1,5 @@
 function [T,Tcrit,con_array,pmax] = VPF_Tmap_from_SPM(SPM,beta,ResMS,con,alpha,flag)
 
-% keyboard
 Vc  = con'*SPM.xX.Bcov*con;
 SE  = sqrt(ResMS*Vc);    
 

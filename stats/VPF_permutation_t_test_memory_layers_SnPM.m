@@ -1,129 +1,19 @@
-clear;clc;
+function VPF_permutation_t_test_memory_layers_SnPM(X,alpha_FWE,bNeg,LAYERS)
 
-data = dir('/media/pfaffenrot/Elements/postdoc/projects/data/7*');
-
-
-nScan = length(data);
-alph_FWE = 0.05;
-bNeg = 0;
-LAYERS = true;
-
-for Scan = 1:nScan
-    if strcmp(data(Scan).name,'7495') ||  strcmp(data(Scan).name,'7566')
-        for session = 1:2
-            load([data(Scan).folder '/' data(Scan).name '/memory/ses-0' num2str(session)...
-                '/z_transformed/results_memory_vs_math_z.mat']);
-            if session == 1
-                tmp = zeros(size(results_memory_vs_math.con_array));
-                if Scan == 1
-                    X = zeros([size(results_memory_vs_math.con_array),nScan]);
-                end
-            end
-            tmp = tmp+results_memory_vs_math.con_array;
-            X(:,:,Scan) = tmp./2;
-        end
-    else
-        load([data(Scan).folder '/' data(Scan).name...
-            '/memory/z_transformed/results_memory_vs_math_z.mat']);
-        if Scan == 1
-            X = zeros([size(results_memory_vs_math.con_array),nScan]);
-        end
-        X(:,:,Scan) = results_memory_vs_math.con_array;
-    end
+if nargin < 4
+    LAYERS = true;
 end
 
-X = X(:,:,[1 2 3 4 5 6 7 8 9]);
-
-Xm = mean(X,3);
-Xs = std(X,[],3)./sqrt(size(X,3));
-%%
-[colorcode,bla] = VPF_create_hippocampus_colorcode();
-titles = [cellstr('Subiculum'), cellstr('CA1'), cellstr('CA2'),...
-    cellstr('CA3'),cellstr('CA4/DG')];
-
-plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-    'xtick',[],'xlim',[1 30],'LineWidth',2);
-
-plotspecs.ytick = -0.1:0.1:4;
-plotspecs.ylim = [-0.1 1.4];
-
-figure,
-pos = 30;
-for kk = 1:size(X,1)
-    plotspecs.color = colorcode{kk,1};
-    set(gca,'ColorOrderIndex',kk);
-    h(kk) = shadedErrorBar(1:pos,Xm(kk,:),...
-        Xs(kk,:),plotspecs,1);
-    if kk == 1
-        legendax = h(kk).mainLine;
-        hold on
-    else
-        legendax = cat(2,legendax,h(kk).mainLine);
-    end
-end
-l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
-lgd = legend(legendax,titles,'Location','NorthEast');
-ylabel('\beta_{memory} - \beta_{math} [z]')
-set(gca,'FontSize',plotspecs.FontSize)
-title('memory vs math')
-%%
-
-Xm_agg = cat(2,mean(X(:,1:9,:),2,'omitnan'),mean(X(:,10:15,:),2,'omitnan'),mean(X(:,16:23,:),2,'omitnan'),mean(X(:,24:end,:),2,'omitnan'));
-
-memory_vs_math_aggregated_masked = reshape(permute(Xm_agg,[1 3 2]),[45 4]);
-
-Xm_agg(end,end,:) = mean(Xm_agg(end,[end-1 end],:),2,'omitnan');
-Xm_agg(end,3,:) = nan;
-
-Xs_agg = std(Xm_agg,[],3,'omitnan')./sqrt(9);
-Xm_agg = mean(Xm_agg,3,'omitnan');
-
-memory_vs_math_all_layers = reshape(permute(X,[1 3 2]),[45 30]);
-
-
-figure,
-b = bar(1:5,Xm_agg,'LineWidth',2);
-b(1).FaceColor = 'flat';
-b(2).FaceColor = 'flat';
-b(3).FaceColor = 'flat';
-b(4).FaceColor = 'flat';
-
-for ii = 1:5
-    b(1).CData(ii,:) = bla{ii,1};
-    b(2).CData(ii,:) = colorcode{ii,1};
-    b(3).CData(ii,:) = bla{ii,2};
-    b(4).CData(ii,:) = colorcode{ii,2};
+if nargin < 3
+    bNeg = 0;
 end
 
-hold on
-for ii = 1:4
-    if ii == 1
-        x = (1:5) -0.27;
-    else
-        x = (1:5) + 0.18 * (ii-2.5);
-    end
-    er = errorbar(x,Xm_agg(:,ii),Xs_agg(:,ii),'LineWidth', 2);
-    er(1).Color = [0 0 0];
-    er(1).LineStyle = 'none';
-
+if nargin < 2 
+    alpha_FWE = 0.05;
 end
-
-g = gca;
-set(g,'xticklabel',{'Sub','CA1','CA2','CA3','DG/CA4'})
-set(g,'FontName','Arial','FontSize',24,'YLim',[-0.4 1])
-ylabel('\beta_{pre} - \beta_{post} [z]')
-title('veins not masked')
-
-h2 = bar(nan(4,4));
-h2(1).FaceColor = bla{2,1};
-h2(2).FaceColor = colorcode{2,1};
-h2(3).FaceColor = bla{2,2};
-h2(4).FaceColor = colorcode{2,2};
-legend(h2,{'SRLM','inner','midthickness','outer'})
-
 %%
 if ~LAYERS
-    smoothingFactor = 0.1;
+    smoothingFactor = 0.75;
     maxiter = 1;
     labels = dir([data(1).folder '/' data(1).name '/hippunfold/surf/sub-*_hemi-L_space-T2w_den-0p5mm_label-hipp_atlas-bigbrain_subfields.label.gii']);
     labels = gifti([labels.folder '/' labels.name]).cdata;
@@ -133,7 +23,7 @@ if ~LAYERS
                 for SURF = 1:size(X,2)
                     inp = X(labels==jj,SURF,ii);
                     inp(inp==0)= nan;
-                    inp = smoothdata(inp,1,'gaussian','smoothingFactor',0.75);
+                    inp = smoothdata(inp,1,'gaussian','smoothingFactor',smoothingFactor);
                     X(labels==jj,SURF,ii) = inp;
                 end
             end
@@ -143,8 +33,6 @@ end
 %%
 nScan = size(X,3);
 iCond = ones(nScan,1);
-
-sz = size(X);
 
 if snpm_get_defaults('shuffle_seed')
     % Shuffle seed of random number generator
@@ -165,7 +53,6 @@ end
 
 %-Only do half the work, if possible
 PiCond=PiCond(PiCond(:,1)==1,:);
-bhPerms=1;
 nPerm   = size(PiCond,1);		%-# permutations
 MaxT  = repmat(-Inf,nPerm,2);	%-Max t
 
@@ -298,7 +185,7 @@ end
 
 [StMaxT, iStMaxT] = sort(MaxT);
 
-iFWE=ceil((1-alph_FWE)*nPermReal);
+iFWE=ceil((1-alpha_FWE)*nPermReal);
 Tcrit=StMaxT(iFWE);
 
 if LAYERS==true
@@ -349,9 +236,9 @@ if LAYERS == true
 
     plotspecs.ytick = 0:2:14;
     plotspecs.ylim = [0 14];
-% 
-%     plotspecs.ytick = -4:2:6;
-%     plotspecs.ylim = [-4 6];
+    %
+    %     plotspecs.ytick = -4:2:6;
+    %     plotspecs.ylim = [-4 6];
 
     figure,
     h = VPF_show(@plot,1:30,T(1:fields_to_plot,:).',[],[],[],'T [a.u.]',plotspecs);
@@ -362,8 +249,8 @@ if LAYERS == true
     l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
     legend(titles);
     pos = lT(1).Parent.Position;
-        
-%     title('memory > math')
+
+    %     title('memory > math')
 else
     subfs_name = dir([data(1).folder '/' data(1).name '/hippunfold/surf/sub-*_hemi-L_space-T2w_den-0p5mm_label-hipp_atlas-bigbrain_subfields.label.gii']);
     mthick = dir('/media/pfaffenrot/Elements/postdoc/projects/data/avg/hippunfold/canonical_hemi-avg_inner.unfolded.surf.gii');
@@ -378,7 +265,7 @@ else
     end
 
 end
-
+end
 
 
 

@@ -3,16 +3,12 @@ clear;clc;
 
 sub_id = '7568';
 sess_id ='01'; 
-% mainpath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/';
 mainpath = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/';
 statspath = [mainpath sub_id '/ses-' sess_id '/func/rwls_stats/'];
-% statspath = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/rwls_stats/';
 structpath =  '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/7511/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/sub-7511_UNI_MPRAGEised_biascorrected.nii';
-%structpath =  '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7513/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/sub-7513_UNI_MPRAGEised_biascorrected_denoised.nii';
 mask_path = [mainpath sub_id '/ses-' sess_id '/func/run1/func/mag_POCS_r1_fixedMask.nii'];
 unfoldpath = ['/media/pfaffenrot/Elements/postdoc/proje' ...
     'cts/hippocampus_breathhold/FLASH/derivatives/hippunfold/7511/anat/']; 
-%unfoldpath = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/hippunfold/7513/anat/'; 
 
 %% 
 %create hippocampus mask
@@ -31,8 +27,6 @@ hippo_mask_path = [unfoldpath 'hippo_mask.nii'];
 
 hdr = load_nifti([statspath 'ResMS.nii']);
 ResMS = hdr.vol;
-
-% ResMS(isnan(ResMS)) = 0;
 
 
 roi = abs(ResMS)>3*std(ResMS(:),[],1,"omitnan");
@@ -58,7 +52,6 @@ spm_reslice(cellstr(char(structpath,mask_path)),reslice_flags);
 %%
 [p,m,ext] = fileparts(mask_path); 
 mask = load_nifti([p '/r' m ext]).vol;
-% mask = load_nifti(mask_path).vol;
 mask(abs(mask)<1e-3) = 0;
 mask(isnan(mask)) = 0;
 mask = logical(mask);
@@ -83,9 +76,7 @@ roi_WM(hippo_mask) = 0;
 roi_WM = roi_WM(mask);
 %%
 for run = 1:runs
-%     mypath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7512/ses-02/func/run' num2str(run) '/func/'];
 mypath = [mainpath sub_id '/ses-' sess_id '/func/run' num2str(run) '/func/'];
-% mypath = [mainpath 'mag_POCS_r' num2str(run) '_split/'];
 
     for vol = 1:N
 
@@ -103,9 +94,6 @@ mypath = [mainpath sub_id '/ses-' sess_id '/func/run' num2str(run) '/func/'];
             end
         end
     end
-    
-
-%     confounds = SPM.xX.pKX([(1:8)+8*(run-1) 25+(run-1)],1+(run-1)*N:run*N);
     
     confounds = SPM.xX.pKX((4:9)+9*(run-1),1+(run-1)*N:run*N);
 

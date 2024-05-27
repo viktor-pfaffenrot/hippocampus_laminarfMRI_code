@@ -1,4 +1,4 @@
-function VPF_create_surface_tSNR_results_memory(layers,outpath,hippunfold_path,idx)
+function VPF_create_surface_tSNR_results_memory(layers,outpath,hippunfold_path,SPM,idx)
 % This function calculates tSNR and projects it onto the inner and outer
 % surface of the unfolded hippocampus (averaged over hemispheres) created 
 % by hippunfold. The surface is saved as .gii.
@@ -11,6 +11,9 @@ function VPF_create_surface_tSNR_results_memory(layers,outpath,hippunfold_path,i
 %outpath   [str]     : path to which the final .gii should be saved
 %hippunfold_path [str]     
 %                    : path to the hippunfold output
+%SPM [struct]     
+%                    : SPM structure used to get the volumes of the control
+%                      condition
 
 %OPTIONAL:
 %idx     [cell]      : cell of size (hemis,subfields) containing the 
@@ -80,10 +83,13 @@ layers = mean(layers_new,5);
 
 clear layers_new
 
-%average over runs and take the 1st 100 volumes
-layers = mean(layers(:,:,1:100,:),4);
+%take the first 100 volumes corresponding to the math condition of the 1st
+% run for tSNR calculation
+math_vols = find(SPM.xX.X(SPM.Sess(1).row,SPM.Sess(1).col(3))>0);
+math_vols = math_vols(1:100);
+layers = layers(:,:,math_vols,1); %math_vols
 
-tSNR = mean(layers,3)./std(layers,[],3);
+tSNR = mean(layers,3,'omitnan')./std(layers,[],3,'omitnan');
 tSNR(isnan(tSNR)) = 0;
 
 

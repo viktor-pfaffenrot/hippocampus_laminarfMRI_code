@@ -38,7 +38,7 @@ hdr = load_nifti('TOF_denoised.nii',1);
 hdr.vol = img2;
 save_nifti(hdr,'TOF_vessel_masked.nii');
 
-%%
+%% I use this bit of code to register both SWI and TOF to anatomy.
 
 reslice_flags = struct('mask',0,'mean',0,'interp',4,'which',1);
 mprage = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/7553/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/sub-7553_UNI_MPRAGEised_biascorrected_denoised.nii';

@@ -14,23 +14,18 @@ Tvols = runs*vols;
 N = [20 10]; %number of layers
 
 % this is the overall path
-% globalpath  = '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/';
 globalpath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/'];
 
 % this is the path where the actual data are saved.
 currentpath = 'func';
 
 % this is the path where the freesurfer output is stored
-% structpath = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7513/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/';
 structpath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/'];
 
-% this is the path of the anatomical reference
-% fspath = [globalpath 'freesurfer/' subid];
 
 
-% this is the path where all the layer-related data (sampled functionals, sampbled b-map etc.) are saved
-%layerpath = [globalpath 'layerfication'];
-layerpathbase = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/layerfication'];
+% this is the path where all the layer-related data (sampled functionals etc.) are saved
+layerpath = [globalpath 'layerfication'];
 
 %--> read structural data
 mprage = [structpath 'sub-' subid_BH '_UNI_MPRAGEised_biascorrected_denoised.nii'];
@@ -40,22 +35,17 @@ dims       = hdr_mprage.dim;
 %<--
 
 hippunfold_path = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/hippunfold/' subid_BH];
-% hippunfold_path = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/hippunfold/7513';
 surf_path = [hippunfold_path '/surf'];
 
-%load(['/home/pfaffenrot/work/postdoc/projects/ANT_workdir/rwls_stats/SPM.mat']);
-% SPM_path  '/home/pfaffenrot/work/postdoc/projects/ANT_workdir/rwls_stats_compcor_motion_confounds_w_WMmask/SPM.mat';
-SPM_path = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/func/rwls_stats_compcor_motion_confounds_w_WMmask/SPM.mat'];
+SPM_path = [globalpath 'func/rwls_stats_compcor_motion_confounds_w_WMmask/SPM.mat'];
 load(SPM_path);
 
 SWI_file = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/SWI/rSWI_vessel_masked.nii'];
-% SWI_file = '/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/7513/ses-01/anat/SWI/rSWI_vessel_masked.nii';
 
-% load(['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/layerfication/layers.mat'])
 
 
 %% layer sampling
-rule = '5';
+rule = '1 2 3 4 5 6';
 subfields = numel(double(str2num(rule)));
 if subfields == 0
     subfields = 1;
@@ -68,7 +58,6 @@ for run = 1:runs
     for ii = 1:length(list)
         sampled_img{ii} = [list(ii).folder '/' list(ii).name];
     end
-
 
     if run == 1
         [tmp,idx] = VPF_create_hippocampus_layers(sampled_img,str2double(subid_BH),hippunfold_path,mprage,N,rule,SWI_file);
@@ -91,20 +80,7 @@ for run = 1:runs
     end
 end
 
-layers2 = layers;
-idx2 = idx;
-
-
-
-if numel(double(str2num(rule)))==0
-    outname = 'layers_all.mat';
-else
-    outname = 'layers.mat';
-end
-load([layerpathbase '/' outname]);
-layers(:,5,:) = layers2;
-idx(:,5) = idx2;
-save([layerpathbase '/' outname],'layers','idx','-v7.3')
+save([layerpathbase '/layers.mat'],'layers','idx','-v7.3')
 
 %%
 colorcode = VPF_create_hippocampus_colorcode();
@@ -130,7 +106,7 @@ for ZTRANS = [true,false]
                 cellstr('CA3'),cellstr('CA4/DG')];
 
             plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-                'xtick',[],'xlim',[1 30],'LineWidth',2);
+                'xtick',[],'xlim',[1 30],'LineWidth',3);
             plotspecs.color = colorcode(:,1);
 
             if con_idx == 1
@@ -160,68 +136,21 @@ for ZTRANS = [true,false]
 
             f = figure('Name',figname_out,'NumberTitle','off');
             fields_to_plot=length(titles);
-            for ii = 1:2
-                subplot(1,2,ii)
-                if ii == 1
-                    if ZTRANS
-                        plotspecs.ytick = -2:0.2:2;
-                        plotspecs.ylim = [-2 2];
-                        mytitle = '\DeltaS [z-score]';
-                    else
-                        plotspecs.ytick = -10:5:30;
-                        plotspecs.ylim = [-10 30];
-                        mytitle = '\DeltaS [a. u.]';
-                    end
-%                     keyboard
-                    h = VPF_show(@plot,1:30,results(uu).con_array(1:fields_to_plot,:).',[],[],[],mytitle,plotspecs);
-                    for kk = 1:length(h)
-                        set(h(kk), 'Color',plotspecs.color{kk});
-                    end
-                    l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
-                    legend(titles);
-                else
-                    plotspecs.ytick = -6:2:14;
-                    plotspecs.ylim = [-6 14];
-                    h = VPF_show(@plot,1:30,results(uu).T(1:fields_to_plot,:).',[],[],[],'T [a.u.]',plotspecs);
-                    for kk = 1:length(h)
-                        set(h(kk), 'Color',plotspecs.color{kk});
-                    end
-                    lT = line(plotspecs.xlim,[results(uu).Tcrit,results(uu).Tcrit],'LineWidth',plotspecs.LineWidth,'LineStyle','--');
-                    for kk = 1:length(h)
-                        set(lT(kk), 'Color',plotspecs.color{kk});
-                    end                    
-                    l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
-                    legend(titles);
-                    pos = lT(1).Parent.Position;
-
-%                     annotation('textbox',[0.16 0 .1 .1], ...
-%                         'String','SRLM','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[0.21 0 .1 .12], ...
-%                         'String','inner','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[0.34 0 .1 .1], ...
-%                         'String','GM','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[0.12+pos(3)-0.02 0 .1 .12], ...
-%                         'String','outer','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-% 
-%                     annotation('textbox',[0.6 0 .1 .1], ...
-%                         'String','SRLM','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[0.65 0 .1 .12], ...
-%                         'String','inner','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[0.79 0 .1 .1], ...
-%                         'String','GM','EdgeColor','none','FontSize',plotspecs.FontSize)
-% 
-%                     annotation('textbox',[pos(1)+pos(3)-0.02 0 .1 .12], ...
-%                         'String','outer','EdgeColor','none','FontSize',plotspecs.FontSize)
-
-
-                end
+            if ZTRANS
+                plotspecs.ytick = -0.4:0.2:2;
+                plotspecs.ylim = [-0.4 2];
+                mytitle = '\beta_{memory} - \beta_{math} [z]';
+            else
+                plotspecs.ytick = -10:5:30;
+                plotspecs.ylim = [-10 30];
+                mytitle = '\beta_{memory} - \beta_{math} [a. u.]';
             end
+            h = VPF_show(@plot,1:30,results(uu).con_array(1:fields_to_plot,:).',[],[],[],mytitle,plotspecs);
+            for kk = 1:length(h)
+                set(h(kk), 'Color',plotspecs.color{kk});
+            end
+            l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
+            legend(titles);
 
             results_json = jsonencode(results(uu),PrettyPrint=true);
             if con_idx == 1
@@ -243,15 +172,15 @@ for ZTRANS = [true,false]
 
             if uu == 2
                 if ZTRANS
-                    fulloutname = [layerpath '/' outname '_z_vessel_masked.mat'];
+                    fulloutname = [layerpath '/' outname '_full_tSNR_z_vessel_masked.mat'];
                 else
-                    fulloutname = [layerpath '/' outname '_vessel_masked.mat'];
+                    fulloutname = [layerpath '/' outname '_full_tSNR_vessel_masked.mat'];
                 end
             else
                 if ZTRANS
-                    fulloutname = [layerpath '/' outname '_z.mat'];
+                    fulloutname = [layerpath '/' outname '_full_tSNR_z.mat']; 
                 else
-                    fulloutname = [layerpath '/' outname '.mat'];
+                    fulloutname = [layerpath '/' outname '_full_tSNR.mat']; 
                 end
             end
             save(fulloutname,outname)
@@ -260,8 +189,6 @@ for ZTRANS = [true,false]
             fclose(fid);
         end
 
-
-        pause(0.2)
         for ii = 1:2
             if ii == 1
                 idx_inp = [];
@@ -271,12 +198,12 @@ for ZTRANS = [true,false]
 
             if con_idx == 3 || con_idx == 4
                 VPF_create_surface_Tmap_results_memory(layers,...
-                    SPM,layerpath,con_idx,hippunfold_path,0.9,idx_inp,ZTRANS);
+                    SPM,layerpath,con_idx,hippunfold_path,0.6,idx_inp,ZTRANS);
             end
 
-            if con_idx == 1 && ~ZTRANS
+            if con_idx == 3 && ~ZTRANS
                 VPF_create_surface_tSNR_results_memory(layers,...
-                    layerpath,hippunfold_path,idx_inp);
+                    layerpath,hippunfold_path,SPM,idx_inp);
                 pause(0.1)
             end
         end

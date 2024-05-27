@@ -4,9 +4,7 @@ subj = '7218';
 thres_SWI = 3;
 thres_TOF = 1;
 dir = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/hippunfold/' subj '/surf'];
-% dir = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives//hippunfold/' subj '/surf'];
 datdir = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subj '/ses-01/anat'];
-% datdir = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subj '/ses-01/anat'];
 
 places = [{'inner'},{'outer'}];
 

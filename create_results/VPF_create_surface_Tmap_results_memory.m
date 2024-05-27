@@ -1,11 +1,11 @@
 function VPF_create_surface_Tmap_results_memory(layers,SPM,outpath,con_idx,hippunfold_path,FWHM,idx,ZTRANS)
 % This function calculates statistical t-maps (FDR-corrected, alpha = 0.05)
-% and projects them onto the inner and outer surface of the unfolded 
-% hippocampus (averaged over hemispheres) created by hippunfold. The 
+% and projects them onto the inner and outer surface of the unfolded
+% hippocampus (averaged over hemispheres) created by hippunfold. The
 % surface is saved as .gii.
 
 %INPUT:
-%layers   [cell]     : cell of size (hemis,subfields,runs) containing the 
+%layers   [cell]     : cell of size (hemis,subfields,runs) containing the
 %                      sampled data (size = (N_vertices,N_layers,N_volumes).
 %                      ASSUMES DG TO BE IN THERE, I.E. SUBFIELDS = 6!
 %                      Output of "VPF_layer_pipeline_hippocampus_EPI.m"
@@ -15,24 +15,24 @@ function VPF_create_surface_Tmap_results_memory(layers,SPM,outpath,con_idx,hippu
 %outpath  [str]      : path to which the final .gii should be saved
 %con_idx  [int]      : Index representing the contrast. 1=before button
 %                      press vs. math, 2=after button press vs. math,
-%                      3=before vs. after press, 4=average of before and   
+%                      3=before vs. after press, 4=average of before and
 %                      after press vs. math
-% %hippunfold_path [str]     
+% %hippunfold_path [str]
 %                    : path to the hippunfold output
 
 %OPTIONAL:
-%FWHM    [int]       : Smoothness Factor when using a Guassian average. 
+%FWHM    [int]       : Smoothness Factor when using a Guassian average.
 %                      Default 0.9.
-%idx     [cell]      : cell of size (hemis,subfields) containing the 
-%                      indices of NON-vessel vertices. Output of 
-%                      "VPF_layer_pipeline_hippocampus_EPI.m".The output 
+%idx     [cell]      : cell of size (hemis,subfields) containing the
+%                      indices of NON-vessel vertices. Output of
+%                      "VPF_layer_pipeline_hippocampus_EPI.m".The output
 %                      will contain only those vertices.
 
 %OUTPUT:
-%* .mat and .json files containing: T-map, contrast map, critial T-value at 
+%* .mat and .json files containing: T-map, contrast map, critial T-value at
 %  which p<0.05 FDR-corrected and maximum significant p-value (if not sig-
 %  nificant: pmax = 1).
-% 
+%
 %* sub-{subid}_hemi-avg_{surf}_T.shape.gii
 
 %TODO:
@@ -147,6 +147,7 @@ con_array(nonzeroidx,:) = tmpcon;
 
 results = struct('T',T,'con_array',con_array,'Tcrit',Tcrit,'pmax',pmax);
 results_json = jsonencode(results,PrettyPrint=true);
+
 if con_idx == 1
     outname = 'pre';
     results_pre = results;
@@ -191,24 +192,38 @@ subfs_name = dir([hippunfold_path '/surf/sub-*_hemi-L_space-T2w_den-0p5mm_label-
 mthick = dir([hippunfold_path '/surf/*_hemi-L_space-unfolded_den-0p5mm_label-hipp_midthickness.surf.gii']);
 
 subid =  char(regexp(subfs_name.name,'sub-(\d+)_hemi','tokens','once'));
-for SURF = 1:length(SURFS)
-    inp = T(:,SURF);
 
-    VPF_plot_hippocampus_unfolded(inp,[mthick.folder '/' mthick.name],[subfs_name.folder '/' subfs_name.name],'hot',[2 4],0);
-    gaxis = gca;
-    VPF_rot_hippocampus_flatmap(gaxis);
-    pause(0.2)
-    if MASK_VEINS
-        title([SURFS{SURF} ' vessel masked']);
-    else
-        title(SURFS{SURF});
-    end
+attribute = {'con_array'};
+titles = {'beta_map'};
+mycolor = [{'fireice'}];
 
-    g = gifti(inp);
-    if MASK_VEINS
-        gii_outname = [outpath '/sub-' subid '_hemi-avg_' SURFS{SURF} '_T_' outname_2 '_vessel_masked.shape.gii'];
-    else
-        gii_outname = [outpath '/sub-' subid '_hemi-avg_' SURFS{SURF} '_T_' outname_2 '.shape.gii'];
+if ZTRANS
+    beta_color_limit = [-1.5 1.5];
+else
+     beta_color_limit = [-10 10];
+end
+myscale = {beta_color_limit}; %[0 4]
+
+for ii = 1:length(attribute)
+    for SURF = 1:length(SURFS)
+        inp = results.(attribute{ii})(:,SURF);
+
+        VPF_plot_hippocampus_unfolded(inp,[mthick.folder '/' mthick.name],[subfs_name.folder '/' subfs_name.name],mycolor{ii},myscale{ii},1);
+        gaxis = gca;
+        VPF_rot_hippocampus_flatmap(gaxis);
+        pause(0.2)
+        if MASK_VEINS
+            title([titles{ii} ' vessel masked ' SURFS{SURF}]);
+        else
+            title([titles{ii} ' ' SURFS{SURF}]);
+        end
+
+        g = gifti(inp);
+        if MASK_VEINS
+            gii_outname = [outpath '/sub-' subid '_hemi-avg_' SURFS{SURF} '_' titles{ii} '_' outname_2 '_vessel_masked.shape.gii'];
+        else
+            gii_outname = [outpath '/sub-' subid '_hemi-avg_' SURFS{SURF} '_' titles{ii} '_' outname_2 '.shape.gii'];
+        end
+        save(g,gii_outname,'Base64Binary');
     end
-    save(g,gii_outname,'Base64Binary');    
 end

@@ -1,13 +1,13 @@
 # init ------
 pacman::p_load(pacman,R.matlab,car,reshape,dplyr,GGally,ggplot2,ggthemes,ggvis,
                httr,lubridate,plotly,rio,rmarkdown,shiny,stringr,tidyr,lme4,nlme,
-               flexplot,foreach,doParallel,fitdistrplus,DescTools,buildmer,pbkrtest,lmerTest,
+               foreach,doParallel,fitdistrplus,DescTools,buildmer,pbkrtest,lmerTest,
                rstatix)
 N_cores <- 5
 cl <- makeCluster(N_cores,type = "FORK")
 registerDoParallel(cores=N_cores)
 
-pre_vs_post <- FALSE
+pre_vs_post <- TRUE
 # read matrix and create data frame  ------------------------------------------
 if (pre_vs_post==TRUE) {
   s <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/memory/pre_vs_post_aggregated_no_masked.mat")
@@ -112,6 +112,8 @@ for (subfield in subfields_levels){
     N_layer_levels <- length(unique(inpdata$layer))
     
     level_pairs <- combn(N_layer_levels,2)
+
+    #if (subfield == "CA3") {browser()}
     
     for (ii in 1:ncol(level_pairs)){
       level1 <- level_pairs[1,ii]
@@ -126,12 +128,11 @@ for (subfield in subfields_levels){
                                  paired=TRUE,exact=TRUE,p.adjust.method="none")
      eff_size <- wilcox_effsize(inpdata,z~layer,comparisons=list(c(level1,level2)),
                                 paired=TRUE,exact=TRUE,p.adjust.method="none")
-     z_out <- qnorm(res$p/2)
      
      cname <- paste(level1,level2, sep = " vs. ")
      results_pairs[[subfield]][[cname]] <- list(p_value=res$p, 
                                                 effect_size=as.numeric(eff_size$effsize),
-                                                z=z_out)
+                                                W=res$statistic)
     }
     
     #correct for multiple comparisons
@@ -144,4 +145,4 @@ for (subfield in subfields_levels){
   }
 }
 
-results_memory_vs_math_no_masked <-results_pairs
+results_pre_vs_post_no_mask <-results_pairs

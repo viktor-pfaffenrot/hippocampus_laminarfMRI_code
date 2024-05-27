@@ -18,8 +18,6 @@ for subject = 1:N_subjects
         subjects{subject}{1} '/ses-01/func'];
     data_base = [data_hippunfold(subject).folder '/' subjects{subject}{2}];
 
-    %pick random run
-%     run = randsample(3,1);
     run = 1;
     %calculate std only over the 'rest' volume, i.e. only over math condition
     load([globalpath '/rwls_stats_compcor_motion_confounds_w_WMmask/SPM.mat']);
@@ -114,14 +112,13 @@ for subject = 1:N_subjects
                 fprintf(['subfield ' num2str(subfield) '\n']);
                 sz = size(img{subfield});
                 out = zeros(sz(1:2));
-                if subfield == 2 || subfield == 3
-                    layer_start = 1;
-                else
+                if subfield == 1 || subfield == 4
                     layer_start = 10;
-                end
-                if subfield == 5
+                else
                     layer_start = 1;
                 end
+
+                
                 for layer = layer_start:size(img{subfield},2)
                     tmp = squeeze(img{subfield}(:,layer,:));
                     parfor iter = 1:size(img{subfield},1)

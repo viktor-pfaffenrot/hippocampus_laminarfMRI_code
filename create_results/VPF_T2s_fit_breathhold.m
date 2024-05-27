@@ -1,6 +1,6 @@
 clear;clc;close all;
-subid = '7566';
-sessionid = '02';
+subid = '7218';
+sessionid = '01';
 layerpath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid '/ses-' sessionid '/layerfication'];
 func_path = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid '/ses-' sessionid '/func_bart'];
 load([layerpath '/OFF_layers.mat'])
@@ -73,9 +73,6 @@ plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
 plotspecs.color = colorcode(:,1);
 plotspecs.ytick = 20:2:60;
 plotspecs.ylim = [20 60];
-
-
-
 
 
 subfield_names = [cellstr('Subiculum'), cellstr('CA1'), cellstr('CA2'),...

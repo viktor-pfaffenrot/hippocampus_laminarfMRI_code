@@ -1,8 +1,8 @@
 #----
 pacman::p_load(pacman,R.matlab,car,reshape,dplyr,GGally,ggplot2,ggthemes,ggvis,
                httr,lubridate,plotly,rio,rmarkdown,shiny,stringr,tidyr,lme4,nlme,
-               flexplot,foreach,doParallel,fitdistrplus,DescTools,buildmer,pbkrtest,lmerTest,
-               rstatix)
+               foreach,doParallel,fitdistrplus,DescTools,buildmer,pbkrtest,lmerTest,
+               rstatix,performance,partR2)
 
 
 data <- readMat("/media/pfaffenrot/Elements/postdoc/projects/data/avg/breathhold/density_change_vs_slope_change.mat")
@@ -32,9 +32,10 @@ m1 <- lmer(slope_change ~ density_change + (1|subfield) + (1|subject),data=df,RE
            control = lmerControl(optimizer = "Nelder_Mead"))
 m2 <- lmer(slope_change ~ (1|subfield) + (1|subject),data=df,REML = TRUE,
            control = lmerControl(optimizer = "Nelder_Mead"))
-
+browser()
 m_comp_KR<-KRmodcomp(m1, m2)
 model_summary <- summary(m1)
+r2(m1)
 #----
 
 results <- list(KR = list(p_value = m_comp_KR$test$"p.value"[2], statistic = m_comp_KR$test$"stat"[2]),

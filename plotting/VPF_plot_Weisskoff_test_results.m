@@ -1,12 +1,11 @@
 clear;clc;close all;
-load('/media/pfaffenrot/Elements/postdoc/projects/data/Weisskoff_test_result_all_persubfield_vessel_masked.mat');
+load('/media/pfaffenrot/Elements/postdoc/projects/data/Weisskoff_test_result_all_persubfield.mat');
 
 %%
 colorcode = VPF_create_hippocampus_colorcode();
-subfield_label = {'Subiculum','CA1','CA2','CA3','CA4/DG'};
-myclim = [1 2];
+subfield_label = {'subiculum','CA1','CA2','CA3','CA4/DG'};
+myclim = [0.8 2];
 colVec = linspace(myclim(1), myclim(2), 128);
-% idx = find(colVec < 0.008, 1,'last');
 MM = cubehelix(256,1,-2,3,0.5);
 
 N_subjects = size(w_test,1);
@@ -23,7 +22,7 @@ for subfield = 1:N_subfields
         end
     end
 end
-mymin = [950,2250,400,600,1000];
+mymin = [3324,7139,1401,1979,4257];
 subfield_cell = cell(N_subfields,1);
 
 for subfield = 1:N_subfields
@@ -53,10 +52,10 @@ for subfield = 1:N_subfields
     N_samples = mymax(subfield);
     samples = sqrt(1:N_samples);
     
-%     mdata = log10(smoothdata(subfield_cell{subfield},1));
     mdata = log10(subfield_cell{subfield});
 
     s = 1:floor(mymin(subfield)/10)*10;
+    mymin(subfield) = length(s);
 
     [X,Y] = meshgrid(layers,samples(s));
     mdata_show = mdata(1:mymin(subfield),:);
@@ -83,7 +82,6 @@ for subfield = 1:N_subfields
     figure,
     surf(X,Y,mdata_show,'edgecolor','k');colormap(MM);
     ylabel('$\sqrt{N}$','FontName',plotspecs.FontName,'FontSize',plotspecs.FontSize,Interpreter='latex'),
-%     xlabel('depth','FontName',plotspecs.FontName,'FontSize',plotspecs.FontSize),
     zlabel('temporal noise','FontName',plotspecs.FontName,'FontSize',plotspecs.FontSize),
     title(subfield_label{subfield})
     shading interp
@@ -91,8 +89,6 @@ for subfield = 1:N_subfields
     line(X,Y(end,1)*ones(size(Y)),mdata_show(end,:),'Color',colorcode{subfield,1},'LineWidth',7)
     line(10*ones(size(X)),Y(:,10),mdata_show(:,10),'Color','k','LineWidth',5)
 
-    % mesh(X([1:10 20:20:end],:),Y([1:10 20:20:end],:),mdata_show([1:10 20:20:end],:),'EdgeColor','k','LineWidth',1);
-    % daspect([0.5,0.5,0.5]);
     hidden off
     view(-156,21);
     set(gca,'ZScale','log')
@@ -101,6 +97,20 @@ for subfield = 1:N_subfields
     set(gca,'Xdir','reverse')
     set(gca,'XTick',[])
     set(gca,"FontSize",plotspecs.FontSize)
+
+    [~,idx] = max(mdata_show(end,:));
+    max_noise_line = mdata_show(:,idx);
+    dmax_noise_line = diff(max_noise_line);
+    smoothed_dmax = smoothdata(dmax_noise_line);
+    pos = floor(mean(find(abs(smoothed_dmax)<1e-7)))
+    figure, plot(smoothed_dmax),hold on, line(1:length(dmax_noise_line),zeros(length(dmax_noise_line),1))
+    title(subfield_label{subfield})
+
+    limit_reached = max_noise_line(pos);
+
+    figure, plot(max_noise_line),hold on, line(1:length(dmax_noise_line),ones(length(dmax_noise_line))*limit_reached);
+    title(subfield_label{subfield})
+
 end
 mdata_lineplot( mdata_lineplot==0) = nan;
 mdata_lineplot(end,1:9) = nan;
@@ -119,7 +129,7 @@ for kk = 1:length(h)
 end
 hold on
 plotspecs.Marker = '.';
-plotspecs.MarkerSize = 30;
+plotspecs.MarkerSize = 42;
 h = VPF_show(@semilogy,10,mdata_lineplot(end,10),[],[],[],[],plotspecs);
 set(h, 'Color',plotspecs.color{end});
 h = VPF_show(@semilogy,30,mdata_lineplot(end,end),[],'Weisskoff Test N = 9',[],'temporal noise',plotspecs);
@@ -127,6 +137,11 @@ set(h, 'Color',plotspecs.color{end});
 hold off
 l = line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
 legend(subfield_label,'Location','northwest');
+
+experiment_mean = mean(mdata_lineplot,2,'omitnan');
+
+india_ink_path = '/home/pfaffenrot/work/my_publics/hippocampus_layers/images/F_8/india_ink_sampling';
+VPF_sample_india_ink_stain(experiment_mean,india_ink_path);
 
 
 

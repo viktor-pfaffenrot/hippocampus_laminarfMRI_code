@@ -24,9 +24,6 @@ function [] =  VPF_POCS_recon_pipeline(list,PF_factor)
 %Example usage:
 
 
-
-
-
 N = size(list,1)/2;
     parfor ii = 1:N
         M = size(list,1)/2;
