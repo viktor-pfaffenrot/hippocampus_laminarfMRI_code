@@ -124,12 +124,12 @@ x = squeeze(d_vessel_densities(1,:,:)).';
 
 figure,
 for jj = 1:subfields
-    sc(jj) = scatter(x(:,jj),y(:,jj), 'filled', 'MarkerEdgeColor', 'k');
+    sc(jj) = scatter(x(:,jj),y(:,jj), 80, 'filled', 'MarkerEdgeColor', 'k');
     sc(jj).CData = colorcode{jj,1};
     hold on
-    k = convhull(x(:,jj),y(:,jj));
+    %k = convhull(x(:,jj),y(:,jj));
 
-    plot(x(k,jj),y(k,jj),'Color',colorcode{jj,1},'LineWidth',1,'LineStyle','-')
+    %plot(x(k,jj),y(k,jj),'Color',colorcode{jj,1},'LineWidth',1,'LineStyle','-')
 end
 
 system('Rscript /home/pfaffenrot/work/postdoc/projects/library/stats/VPF_LMM_dSlope_vs_dDensity.R ');
