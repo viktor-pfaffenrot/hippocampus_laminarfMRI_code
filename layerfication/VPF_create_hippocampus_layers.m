@@ -135,7 +135,6 @@ for volume = 1:N_volumes
             end
             layers{jj,subfield}(:,:,volume) = tmp_layers;
             idx{jj,subfield} = tmp_idx;
-
         end
     end
 end

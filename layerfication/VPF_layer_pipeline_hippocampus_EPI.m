@@ -101,7 +101,7 @@ for run = 1:runs
     end
 end
 
-%save([layerpathbase '/layers.mat'],'layers','idx','-v7.3')
+save([layerpathbase '/layers.mat'],'layers','idx','-v7.3')
 
 %%
 colorcode = VPF_create_hippocampus_colorcode();
