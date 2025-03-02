@@ -1,6 +1,6 @@
 clear;clc;%close all;
 
-data = dir('/media/pfaffenrot/Elements/postdoc/projects/data/7*');
+data = dir('/media/pfaffenrot/PostDoc_data/projects/data/7*');
 data = data([1 2 4:end]);
 
 
@@ -63,7 +63,7 @@ end
 
 subfs_name = dir([data(1).folder '/' data(1).name '/hippunfold/surf/sub-*_hemi-L_space-T2w_den-0p5mm_label-hipp_atlas-bigbrain_subfields.label.gii']);
 % subfs_name = dir('/media/pfaffenrot/Elements/postdoc/projects/data/avg/hippunfold/sub-7495_hemi-avg_space-T2w_den-0p5mm_label-hipp_atlas-bigbrain_subfields.label.gii');
-mthick = dir('/media/pfaffenrot/Elements/postdoc/projects/data/avg/hippunfold/canonical_hemi-avg_inner.unfolded.surf.gii');
+mthick = dir('/media/pfaffenrot/PostDoc_data/projects/data/avg/hippunfold/canonical_hemi-avg_inner.unfolded.surf.gii');
 
 outname_base = '/media/pfaffenrot/Elements/postdoc/projects/data/avg/breathhold';
 % attribute = [{'angio'},{'T2s'},{'dSbreathhold'},{'dSbreathhold_weighted'}];

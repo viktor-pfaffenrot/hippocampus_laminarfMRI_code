@@ -136,6 +136,8 @@ for volume = 1:N_volumes
             layers{jj,subfield}(:,:,volume) = tmp_layers;
             idx{jj,subfield} = tmp_idx;
 
+            keyboard
+            out = VPF_sample_layers(ones(size(input_image)),layer_boundaries_sampled,N_layers,CA4DG,SWI_mask);
         end
     end
 end

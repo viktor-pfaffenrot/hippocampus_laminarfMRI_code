@@ -1,6 +1,6 @@
 clear;clc;
 
-data = dir('/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/7*');
+data = dir('/media/pfaffenrot/PostDoc_data/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/7*');
 data = data([1 3 5 6 8:end]);
 sessionid = [1 2 3 2 1 1 1 2];
 TE = [2 6 10 14 17 20]; %
@@ -58,7 +58,7 @@ end
 
 
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-    'xtick',[],'xlim',[1 30],'LineWidth',4);
+    'xtick',[],'xlim',[1 30],'LineWidth',4,'LineStyle','-');
 plotspecs.ytick = -2.6:0.4:2.6;
 plotspecs.ylim = [-2.6 2.6];
 

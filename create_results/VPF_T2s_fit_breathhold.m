@@ -19,8 +19,6 @@ w = 1./TE;
 w = w./sum(w);
 dS_mean_echo_weighted = squeeze(mean(bsxfun(@times,dS,w),2));
 %%
-
-
 opts = optimset('lsqcurvefit');
 opts.Display = 'none';
 opts.MaxIter = 1e5;

@@ -1,6 +1,6 @@
 clear;clc;
-% breat-hold signal change
-load('/media/pfaffenrot/Elements/postdoc/projects/data/avg/breathhold/results_avg.mat')
+% breath-hold signal change
+load('/media/pfaffenrot/PostDoc_data/projects/data/avg/breathhold/results_avg.mat')
 colorcode = VPF_create_hippocampus_colorcode();
 
 N_subjects = 8;
@@ -13,7 +13,7 @@ mylegend = [cellstr('Subiculum'), cellstr('CA1'), cellstr('CA2'),...
     cellstr('CA3'),cellstr('CA4/DG')];
 
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-    'xtick',[],'xlim',[1 30],'LineWidth',4);
+    'xtick',[],'xlim',[1 30],'LineWidth',4,'LineStyle','-');
 
 plotspecs.ytick = -4:2:24;
 plotspecs.ylim = [-4 24];
@@ -58,7 +58,7 @@ ylabel('\DeltaS_{mean} [a.u.]')
 
 
 plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
-    'xtick',[],'xlim',[1 30],'LineWidth',4);
+    'xtick',[],'xlim',[1 30],'LineWidth',4,'LineStyle','-');
 clear h
 plotspecs.ytick = 0:0.2:3;
 plotspecs.ylim = [0 3];
@@ -99,6 +99,55 @@ legendax = cat(2,legendax,h);
 
 legend(legendax,mylegend,'Location','Northwest');
 ylabel('\DeltaS_{mean,weighted} [a.u.]');
+set(gca,'FontSize',plotspecs.FontSize);
+
+%%
+% T2*
+dT2s_submean = results_avg.dR2s_submean;
+dT2s_substd = results_avg.dR2s_substd;
+
+plotspecs = struct('FontName','Arial','FontSize',22,'colormap',jet(256),...
+    'xtick',[],'xlim',[1 30],'LineWidth',4,'LineStyle','-');
+clear h
+plotspecs.ytick = -4:0.2:4;
+plotspecs.ylim = [-4 4];
+
+N_layers = 30;
+figure
+plotspecs.Marker = 'None';
+for kk = 1:N_subfields-1
+    plotspecs.color = colorcode{kk,1};
+    h(kk) = shadedErrorBar(1:N_layers,results_avg.dR2s_submean(:,kk),...
+        results_avg.dR2s_substd(:,kk),plotspecs,1);
+    if kk == 1
+        legendax = h(kk).mainLine;
+        hold on
+    else
+        legendax = cat(2,legendax,h(kk).mainLine);
+    end
+end
+
+line([10,10],plotspecs.ylim,'LineWidth',plotspecs.LineWidth,'Color','black');
+
+hold on
+plotspecs.color = colorcode{end,1};
+plotspecs.Marker = '.';
+plotspecs.MarkerSize = 42;
+h = VPF_show(@plot,10,results_avg.dR2s_submean(10,end),[],[],[],[],plotspecs);
+set(h, 'Color',plotspecs.color);
+h = errorbar(10,results_avg.dR2s_submean(10,end),results_avg.dR2s_substd(10,end),'LineWidth',plotspecs.LineWidth);
+set(h, 'Color',plotspecs.color);
+
+h = VPF_show(@plot,N_layers,results_avg.dR2s_submean(end,end),[],[],[],[],plotspecs);
+set(h, 'Color',plotspecs.color);
+h2 = errorbar(N_layers,results_avg.dR2s_submean(end,end),results_avg.dR2s_substd(end,end),'LineWidth',plotspecs.LineWidth);
+set(h2, 'Color',plotspecs.color);
+hold off
+
+legendax = cat(2,legendax,h);
+
+legend(legendax,mylegend,'Location','Northwest');
+ylabel('\DeltaR_2* [1/ms]');
 set(gca,'FontSize',plotspecs.FontSize);
 
 %% fitted T2*

@@ -3,8 +3,8 @@
 clear;clc;close all
 
 % some paramters
-subid = '7560';
-subid_BH = '7554';
+subid = '7560'; 
+subid_BH = '7554'; 
 sessionid = '1';
 
 vols = 486;
@@ -14,13 +14,13 @@ Tvols = runs*vols;
 N = [20 10]; %number of layers
 
 % this is the overall path
-globalpath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/'];
+globalpath = ['/media/pfaffenrot/PostDoc_data/projects/hippocampus_VASO/derivatives/pipeline/' subid '/ses-0' sessionid '/'];
 
 % this is the path where the actual data are saved.
 currentpath = 'func';
 
 % this is the path where the freesurfer output is stored
-structpath = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/'];
+structpath = ['/media/pfaffenrot/PostDoc_data/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/T1/presurf_MPRAGEise/presurf_UNI/'];
 
 
 
@@ -34,15 +34,36 @@ hdr_mprage = spm_vol(mprage);
 dims       = hdr_mprage.dim;
 %<--
 
-hippunfold_path = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/hippunfold/' subid_BH];
+hippunfold_path = ['/media/pfaffenrot/PostDoc_data/projects/hippocampus_breathhold/FLASH/derivatives/hippunfold/' subid_BH];
 surf_path = [hippunfold_path '/surf'];
 
 SPM_path = [globalpath 'func/rwls_stats_compcor_motion_confounds_w_WMmask/SPM.mat'];
 load(SPM_path);
 
-SWI_file = ['/media/pfaffenrot/Elements/postdoc/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/SWI/rSWI_vessel_masked.nii'];
+SWI_file = ['/media/pfaffenrot/PostDoc_data/projects/hippocampus_breathhold/FLASH/derivatives/pipeline/' subid_BH '/ses-01/anat/SWI/rSWI_vessel_masked.nii'];
 
+%% check motion
 
+for run = 1:runs
+    if run == 1
+        tmp = importdata([globalpath '/func/run' num2str(run) '/func/mag_POCS_r' num2str(run) '_MoCorr.txt']);
+        motion = zeros([size(tmp) runs]);
+        motion(:,:,run) = tmp;
+    else
+        motion(:,:,run) = importdata([globalpath '/func/run' num2str(run) '/func/mag_POCS_r' num2str(run) '_MoCorr.txt']);
+    end
+end
+
+motion_tot = reshape(permute(motion, [2 1 3]), [6 Tvols]);
+figure,
+subplot(1,2,1)
+plot(motion_tot(1:3,:)'), xlabel('vols'),ylabel('translation [mm]'), legend('x','y','z');
+subplot(1,2,2)
+plot(rad2deg(motion_tot(4:6,:))'), xlabel('vols'),ylabel('rotation [deg]'), legend('pitch','roll','yaw')
+
+displacement = [motion_tot(1:3,:); motion_tot(4:6,:)*pi/180*50];
+max_displacement = max(displacement(:))
+figure, plot(displacement.')
 
 %% layer sampling
 rule = '1 2 3 4 5 6';
@@ -80,7 +101,7 @@ for run = 1:runs
     end
 end
 
-save([layerpathbase '/layers.mat'],'layers','idx','-v7.3')
+%save([layerpathbase '/layers.mat'],'layers','idx','-v7.3')
 
 %%
 colorcode = VPF_create_hippocampus_colorcode();

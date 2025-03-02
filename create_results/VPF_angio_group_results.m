@@ -1,6 +1,6 @@
 clear;clc;close all
 
-data = dir('/media/pfaffenrot/Elements/postdoc/projects/data/7*');
+data = dir('/media/pfaffenrot/PostDoc_data/projects/data/7*');
 data = data([1 2 4 5 6 7 8 9]);
 subjects = length(data);
 
@@ -192,6 +192,8 @@ T2s_substd = std(T2s(:,:,select),[],3);
 
 dR2s_submean = mean(dR2s(:,:,select),3);
 dR2s_substd = std(dR2s(:,:,select),[],3);
+
+
 
 results_avg = struct('dS_mean_echo_submean',dS_mean_echo_submean,'dS_mean_echo_substd',dS_mean_echo_substd,...
     'dS_mean_echo_weighted_submean',dS_mean_echo_weighted_submean,'dS_mean_echo_weighted_substd',dS_mean_echo_weighted_substd,...

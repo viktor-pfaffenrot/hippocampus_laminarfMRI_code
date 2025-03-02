@@ -25,7 +25,11 @@ datatip(p);
 dtRows = [dataTipTextRow('Subfield','label')];
 
 p.DataTipTemplate.DataTipRows(end+1) = dtRows;
-cmap = eval([cmap '(256)']);
+
+
+if ischar(cmap)
+    cmap = eval([cmap '(256)']);
+end
 colormap(gca,cmap)
 
 hold on
